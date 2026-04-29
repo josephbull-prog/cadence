@@ -4,6 +4,8 @@ import { ChevronLeft, ChevronRight, StickyNote, BookCheck, Calendar, Search } fr
 import { useProfile, useHolidays, useClasses, useTimetableSlots, useLessonPlans, useHomework } from '../../lib/hooks'
 import { getCycleWeek, getScheduleForDate, isHoliday, isSingleDayHoliday, getHolidayLabel, toISO } from '../../lib/cycleEngine'
 import DayPanel from './DayPanel'
+import { useTheme } from '../../lib/theme'
+import TimetableWeekView from './TimetableWeekView'
 import UniversalSearch from '../ui/UniversalSearch'
 
 const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
@@ -13,6 +15,7 @@ export default function WeekView() {
   const [weekStart, setWeekStart] = useState(() => startOfWeek(new Date(), { weekStartsOn: 1 }))
   const [selectedLesson, setSelectedLesson] = useState(null)
   const [showSearch, setShowSearch] = useState(false)
+  const { style } = useTheme()
 
   // Press / to open search (when not typing in an input)
   useEffect(() => {
@@ -73,6 +76,7 @@ export default function WeekView() {
 
   return (
     <div className="p-4 lg:p-6 max-w-7xl mx-auto animate-fade-in">
+      {/* Timetable style swaps to a class-row layout */}
       {/* Search bar — expands inline above the week nav */}
       {showSearch ? (
         <div className="mb-4 animate-slide-up">
@@ -105,16 +109,16 @@ export default function WeekView() {
         </div>
       )}
 
-      {slots.length === 0 && (
+      {style === 'timetable' ? (
+        <TimetableWeekView weekStart={weekStart} onLessonClick={setSelectedLesson} />
+      ) : slots.length === 0 ? (
         <div className="card p-8 text-center">
           <Calendar size={32} className="mx-auto mb-3" style={{ color: 'var(--text-muted)' }} />
           <p className="font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>No timetable yet</p>
           <p className="text-sm mb-4" style={{ color: 'var(--text-muted)' }}>Go to Settings to build your timetable.</p>
           <a href="/settings" className="btn-primary inline-flex">Set up timetable</a>
         </div>
-      )}
-
-      {slots.length > 0 && (
+      ) : (
         <div className="overflow-x-auto -mx-4 px-4">
           <div className="min-w-[600px]">
             {/* Day headers */}
@@ -201,7 +205,7 @@ export default function WeekView() {
                       onClick={() => setSelectedLesson({ date: day.iso, classId: cell.slot.class_id, period, planId: plan?.id })}
                       className="mx-0.5 h-14 rounded-lg text-left p-2 transition-all duration-150 hover:scale-[1.02] active:scale-95"
                       style={{
-                        background: today ? 'rgba(230,176,32,0.08)' : 'var(--bg-raised)',
+                        background: today ? 'rgba(230,176,32,0.08)' : style === 'editorial' ? 'transparent' : 'var(--bg-raised)',
                         border: `1px solid ${today ? 'rgba(230,176,32,0.2)' : 'var(--border)'}`,
                         borderLeftWidth: cls?.color_code ? '3px' : '1px',
                         borderLeftColor: cls?.color_code || (today ? 'rgba(230,176,32,0.2)' : 'var(--border)')

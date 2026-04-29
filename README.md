@@ -40,4 +40,3 @@ npm run dev
 | Auth | Google OAuth via Supabase |
 | PWA | Vite PWA Plugin |
 | Hosting | Netlify |
-# cadence

@@ -214,7 +214,14 @@ export function computePushForward(classId, triggerDate, lessonPlans, timetableS
 
 /**
  * Get the next SoW suggestion for a class.
- * Returns the lesson title string or null.
+ * Returns { title, index, remaining } or null.
+ *
+ * "Skipped" lessons have sow_skipped=true on their plan — we still advance
+ * past them but note the skip. A lesson that appears in sow_index but also
+ * has sow_skipped=true means the teacher deliberately skipped it.
+ *
+ * We find the first lesson index that has NOT yet been taught (no plan with
+ * that sow_index and sow_skipped=false).
  */
 export function getSoWSuggestion(classId, classes, schemesOfWork, lessonPlans) {
   const cls = classes.find(c => c.id === classId)
@@ -223,16 +230,68 @@ export function getSoWSuggestion(classId, classes, schemesOfWork, lessonPlans) {
   const sow = schemesOfWork.find(s => s.id === cls.sow_id)
   if (!sow?.lessons?.length) return null
 
-  // Find the highest sow_index used for this class
-  const usedIndices = lessonPlans
-    .filter(p => p.class_id === classId && p.sow_index !== null && p.sow_index !== undefined)
-    .map(p => p.sow_index)
+  // All plans for this class that reference a sow_index
+  const sowPlans = lessonPlans.filter(
+    p => p.class_id === classId &&
+         p.sow_index !== null && p.sow_index !== undefined
+  )
 
-  const maxIndex = usedIndices.length > 0 ? Math.max(...usedIndices) : -1
-  const nextIndex = maxIndex + 1
+  // Build sets of taught and skipped indices
+  const taughtIndices = new Set(sowPlans.filter(p => !p.sow_skipped).map(p => p.sow_index))
+  const skippedIndices = new Set(sowPlans.filter(p => p.sow_skipped).map(p => p.sow_index))
+
+  // Find the highest index that has been taught (not skipped) — start searching from there
+  const maxTaught = taughtIndices.size > 0 ? Math.max(...taughtIndices) : -1
+
+  // Next suggestion: first index after maxTaught that hasn't been taught
+  let nextIndex = maxTaught + 1
+  while (nextIndex < sow.lessons.length) {
+    if (!taughtIndices.has(nextIndex)) break
+    nextIndex++
+  }
 
   if (nextIndex >= sow.lessons.length) return null
-  return { title: sow.lessons[nextIndex], index: nextIndex }
+
+  // Count remaining lessons (not taught, not skipped)
+  const remaining = sow.lessons.filter((_, i) => i > nextIndex && !taughtIndices.has(i)).length
+
+  return {
+    title: sow.lessons[nextIndex],
+    index: nextIndex,
+    isSkipped: skippedIndices.has(nextIndex),
+    remaining,
+    total: sow.lessons.length,
+  }
+}
+
+/**
+ * Get all SoW lessons for a class with their status:
+ * 'taught' | 'skipped' | 'next' | 'upcoming' | 'done'
+ */
+export function getSoWProgress(classId, classes, schemesOfWork, lessonPlans) {
+  const cls = classes.find(c => c.id === classId)
+  if (!cls?.sow_id) return null
+  const sow = schemesOfWork.find(s => s.id === cls.sow_id)
+  if (!sow?.lessons?.length) return null
+
+  const sowPlans = lessonPlans.filter(
+    p => p.class_id === classId && p.sow_index !== null && p.sow_index !== undefined
+  )
+  const taughtIndices = new Set(sowPlans.filter(p => !p.sow_skipped).map(p => p.sow_index))
+  const skippedIndices = new Set(sowPlans.filter(p => p.sow_skipped).map(p => p.sow_index))
+
+  const maxTaught = taughtIndices.size > 0 ? Math.max(...taughtIndices) : -1
+  let nextIdx = maxTaught + 1
+  while (nextIdx < sow.lessons.length && taughtIndices.has(nextIdx)) nextIdx++
+
+  return sow.lessons.map((title, i) => ({
+    index: i,
+    title,
+    status: taughtIndices.has(i) ? 'taught'
+          : skippedIndices.has(i) ? 'skipped'
+          : i === nextIdx ? 'next'
+          : 'upcoming',
+  }))
 }
 
 /**

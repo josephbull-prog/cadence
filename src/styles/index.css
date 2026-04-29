@@ -2,79 +2,260 @@
 @tailwind components;
 @tailwind utilities;
 
-/* =====================
-   CSS VARIABLES — DARK (default)
-   ===================== */
-:root, [data-theme="dark"] {
-  --bg-base:       #0d0d1a;
-  --bg-surface:    #1a1a2e;
-  --bg-raised:     #16213e;
-  --bg-overlay:    #1e2535;
-  --border:        rgba(255,255,255,0.10);
-  --border-subtle: rgba(255,255,255,0.06);
-  --text-primary:  #e8e8f0;
-  --text-secondary:rgba(255,255,255,0.55);
-  --text-muted:    rgba(255,255,255,0.28);
-  --text-placeholder: rgba(255,255,255,0.25);
-  --input-bg:      rgba(255,255,255,0.05);
-  --input-bg-focus:rgba(255,255,255,0.08);
-  --input-border:  rgba(255,255,255,0.15);
-  --hover-bg:      rgba(255,255,255,0.06);
-  --hover-bg-strong: rgba(255,255,255,0.10);
-  --scrollbar-thumb: rgba(255,255,255,0.15);
-  --scrollbar-hover:  rgba(255,255,255,0.25);
-  --ring-offset:   #16213e;
-  --gold:          #e6b020;
-  --gold-hover:    #f0c040;
-  --gold-text:     #1a1a2e;
+/* ═══════════════════════════════════════════════
+   SHARED TOKENS (all styles share these names)
+   ═══════════════════════════════════════════════ */
+
+/* ── DEFAULT dark ── */
+:root,
+[data-style="default"][data-mode="dark"] {
+  --bg-base:          #0d0d1a;
+  --bg-surface:       #1a1a2e;
+  --bg-raised:        #16213e;
+  --bg-overlay:       #1e2535;
+  --border:           rgba(255,255,255,0.10);
+  --border-subtle:    rgba(255,255,255,0.05);
+  --text-primary:     #e8e8f0;
+  --text-secondary:   rgba(255,255,255,0.55);
+  --text-muted:       rgba(255,255,255,0.28);
+  --text-placeholder: rgba(255,255,255,0.22);
+  --input-bg:         rgba(255,255,255,0.05);
+  --input-bg-focus:   rgba(255,255,255,0.08);
+  --input-border:     rgba(255,255,255,0.15);
+  --hover-bg:         rgba(255,255,255,0.06);
+  --hover-bg-strong:  rgba(255,255,255,0.10);
+  --nav-active-bg:    rgba(230,176,32,0.12);
+  --nav-active-color: #f0c040;
+  --nav-active-border:rgba(230,176,32,0.2);
+  --gold:             #e6b020;
+  --gold-hover:       #f0c040;
+  --gold-text:        #1a1a2e;
+  --scrollbar:        rgba(255,255,255,0.15);
+  --sidebar-w:        256px;
+  --font-ui:          'DM Sans', system-ui, sans-serif;
+  --font-logo:        'Playfair Display', Georgia, serif;
 }
 
-/* =====================
-   CSS VARIABLES — LIGHT
-   ===================== */
-[data-theme="light"] {
-  --bg-base:       #f0ede8;
-  --bg-surface:    #faf8f5;
-  --bg-raised:     #ffffff;
-  --bg-overlay:    #f2efe9;
-  --border:        rgba(0,0,0,0.10);
-  --border-subtle: rgba(0,0,0,0.06);
-  --text-primary:  #1a1a2e;
-  --text-secondary:rgba(0,0,0,0.55);
-  --text-muted:    rgba(0,0,0,0.35);
-  --text-placeholder: rgba(0,0,0,0.30);
-  --input-bg:      rgba(0,0,0,0.04);
-  --input-bg-focus:rgba(0,0,0,0.07);
-  --input-border:  rgba(0,0,0,0.18);
-  --hover-bg:      rgba(0,0,0,0.05);
-  --hover-bg-strong: rgba(0,0,0,0.09);
-  --scrollbar-thumb: rgba(0,0,0,0.18);
-  --scrollbar-hover:  rgba(0,0,0,0.28);
-  --ring-offset:   #ffffff;
-  --gold:          #c49a10;
-  --gold-hover:    #e6b020;
-  --gold-text:     #ffffff;
+/* ── DEFAULT light ── */
+[data-style="default"][data-mode="light"] {
+  --bg-base:          #f0ede8;
+  --bg-surface:       #faf8f5;
+  --bg-raised:        #ffffff;
+  --bg-overlay:       #f2efe9;
+  --border:           rgba(0,0,0,0.10);
+  --border-subtle:    rgba(0,0,0,0.05);
+  --text-primary:     #1a1a2e;
+  --text-secondary:   rgba(0,0,0,0.55);
+  --text-muted:       rgba(0,0,0,0.35);
+  --text-placeholder: rgba(0,0,0,0.28);
+  --input-bg:         rgba(0,0,0,0.04);
+  --input-bg-focus:   rgba(0,0,0,0.07);
+  --input-border:     rgba(0,0,0,0.18);
+  --hover-bg:         rgba(0,0,0,0.05);
+  --hover-bg-strong:  rgba(0,0,0,0.09);
+  --nav-active-bg:    rgba(196,154,16,0.12);
+  --nav-active-color: #a07800;
+  --nav-active-border:rgba(196,154,16,0.25);
+  --gold:             #b08010;
+  --gold-hover:       #c49a10;
+  --gold-text:        #ffffff;
+  --scrollbar:        rgba(0,0,0,0.18);
+  --sidebar-w:        256px;
+  --font-ui:          'DM Sans', system-ui, sans-serif;
+  --font-logo:        'Playfair Display', Georgia, serif;
 }
 
+/* ── EDITORIAL dark ── */
+[data-style="editorial"][data-mode="dark"] {
+  --bg-base:          #111110;
+  --bg-surface:       #1a1917;
+  --bg-raised:        #1f1e1c;
+  --bg-overlay:       #252420;
+  --border:           rgba(255,255,255,0.08);
+  --border-subtle:    rgba(255,255,255,0.04);
+  --text-primary:     #e8e4d8;
+  --text-secondary:   rgba(232,228,216,0.55);
+  --text-muted:       rgba(232,228,216,0.30);
+  --text-placeholder: rgba(232,228,216,0.22);
+  --input-bg:         rgba(255,255,255,0.04);
+  --input-bg-focus:   rgba(255,255,255,0.07);
+  --input-border:     rgba(255,255,255,0.12);
+  --hover-bg:         rgba(255,255,255,0.05);
+  --hover-bg-strong:  rgba(255,255,255,0.09);
+  --nav-active-bg:    rgba(255,255,255,0.07);
+  --nav-active-color: #e8e4d8;
+  --nav-active-border:rgba(255,255,255,0.10);
+  --gold:             #c8a050;
+  --gold-hover:       #d4b060;
+  --gold-text:        #111110;
+  --scrollbar:        rgba(255,255,255,0.12);
+  --sidebar-w:        220px;
+  --font-ui:          'DM Sans', system-ui, sans-serif;
+  --font-logo:        'Playfair Display', Georgia, serif;
+}
+
+/* ── EDITORIAL light ── */
+[data-style="editorial"][data-mode="light"] {
+  --bg-base:          #f7f5f0;
+  --bg-surface:       #fdfcf9;
+  --bg-raised:        #ffffff;
+  --bg-overlay:       #f2efe8;
+  --border:           rgba(0,0,0,0.08);
+  --border-subtle:    rgba(0,0,0,0.04);
+  --text-primary:     #1a1916;
+  --text-secondary:   rgba(26,25,22,0.55);
+  --text-muted:       rgba(26,25,22,0.35);
+  --text-placeholder: rgba(26,25,22,0.28);
+  --input-bg:         rgba(0,0,0,0.03);
+  --input-bg-focus:   rgba(0,0,0,0.06);
+  --input-border:     rgba(0,0,0,0.14);
+  --hover-bg:         rgba(0,0,0,0.04);
+  --hover-bg-strong:  rgba(0,0,0,0.07);
+  --nav-active-bg:    rgba(0,0,0,0.06);
+  --nav-active-color: #1a1916;
+  --nav-active-border:rgba(0,0,0,0.12);
+  --gold:             #8a6a20;
+  --gold-hover:       #9a7a2c;
+  --gold-text:        #ffffff;
+  --scrollbar:        rgba(0,0,0,0.15);
+  --sidebar-w:        220px;
+  --font-ui:          'DM Sans', system-ui, sans-serif;
+  --font-logo:        'Playfair Display', Georgia, serif;
+}
+
+/* ── CARDS dark ── */
+[data-style="cards"][data-mode="dark"] {
+  --bg-base:          #141418;
+  --bg-surface:       #1c1c22;
+  --bg-raised:        #22222a;
+  --bg-overlay:       #28282e;
+  --border:           rgba(255,255,255,0.09);
+  --border-subtle:    rgba(255,255,255,0.04);
+  --text-primary:     #eeeef5;
+  --text-secondary:   rgba(238,238,245,0.55);
+  --text-muted:       rgba(238,238,245,0.30);
+  --text-placeholder: rgba(238,238,245,0.22);
+  --input-bg:         rgba(255,255,255,0.05);
+  --input-bg-focus:   rgba(255,255,255,0.08);
+  --input-border:     rgba(255,255,255,0.13);
+  --hover-bg:         rgba(255,255,255,0.05);
+  --hover-bg-strong:  rgba(255,255,255,0.09);
+  --nav-active-bg:    rgba(255,255,255,0.09);
+  --nav-active-color: #eeeef5;
+  --nav-active-border:transparent;
+  --gold:             #7c9cf0;
+  --gold-hover:       #92aef8;
+  --gold-text:        #141418;
+  --scrollbar:        rgba(255,255,255,0.12);
+  --sidebar-w:        72px;
+  --font-ui:          'DM Sans', system-ui, sans-serif;
+  --font-logo:        'DM Sans', system-ui, sans-serif;
+  --rail-icon-size:   72px;
+}
+
+/* ── CARDS light ── */
+[data-style="cards"][data-mode="light"] {
+  --bg-base:          #eef0f5;
+  --bg-surface:       #f8f9fc;
+  --bg-raised:        #ffffff;
+  --bg-overlay:       #f0f2f7;
+  --border:           rgba(0,0,0,0.09);
+  --border-subtle:    rgba(0,0,0,0.04);
+  --text-primary:     #14141a;
+  --text-secondary:   rgba(20,20,26,0.55);
+  --text-muted:       rgba(20,20,26,0.35);
+  --text-placeholder: rgba(20,20,26,0.28);
+  --input-bg:         rgba(0,0,0,0.04);
+  --input-bg-focus:   rgba(0,0,0,0.07);
+  --input-border:     rgba(0,0,0,0.14);
+  --hover-bg:         rgba(0,0,0,0.04);
+  --hover-bg-strong:  rgba(0,0,0,0.08);
+  --nav-active-bg:    rgba(20,20,26,0.08);
+  --nav-active-color: #14141a;
+  --nav-active-border:transparent;
+  --gold:             #3a60d0;
+  --gold-hover:       #4a70e0;
+  --gold-text:        #ffffff;
+  --scrollbar:        rgba(0,0,0,0.14);
+  --sidebar-w:        72px;
+  --font-ui:          'DM Sans', system-ui, sans-serif;
+  --font-logo:        'DM Sans', system-ui, sans-serif;
+  --rail-icon-size:   72px;
+}
+
+/* ── TIMETABLE dark ── */
+[data-style="timetable"][data-mode="dark"] {
+  --bg-base:          #161820;
+  --bg-surface:       #1e2028;
+  --bg-raised:        #242630;
+  --bg-overlay:       #2a2c38;
+  --border:           rgba(255,255,255,0.09);
+  --border-subtle:    rgba(255,255,255,0.04);
+  --text-primary:     #ecedf8;
+  --text-secondary:   rgba(236,237,248,0.55);
+  --text-muted:       rgba(236,237,248,0.30);
+  --text-placeholder: rgba(236,237,248,0.22);
+  --input-bg:         rgba(255,255,255,0.05);
+  --input-bg-focus:   rgba(255,255,255,0.08);
+  --input-border:     rgba(255,255,255,0.13);
+  --hover-bg:         rgba(255,255,255,0.05);
+  --hover-bg-strong:  rgba(255,255,255,0.09);
+  --nav-active-bg:    rgba(120,150,255,0.15);
+  --nav-active-color: #8899ff;
+  --nav-active-border:rgba(120,150,255,0.25);
+  --gold:             #8899ff;
+  --gold-hover:       #99aaff;
+  --gold-text:        #161820;
+  --scrollbar:        rgba(255,255,255,0.12);
+  --sidebar-w:        0px;
+  --font-ui:          'DM Sans', system-ui, sans-serif;
+  --font-logo:        'Playfair Display', Georgia, serif;
+}
+
+/* ── TIMETABLE light ── */
+[data-style="timetable"][data-mode="light"] {
+  --bg-base:          #f2f3f8;
+  --bg-surface:       #ffffff;
+  --bg-raised:        #ffffff;
+  --bg-overlay:       #eaecf5;
+  --border:           rgba(0,0,0,0.09);
+  --border-subtle:    rgba(0,0,0,0.04);
+  --text-primary:     #16182a;
+  --text-secondary:   rgba(22,24,42,0.55);
+  --text-muted:       rgba(22,24,42,0.35);
+  --text-placeholder: rgba(22,24,42,0.28);
+  --input-bg:         rgba(0,0,0,0.04);
+  --input-bg-focus:   rgba(0,0,0,0.07);
+  --input-border:     rgba(0,0,0,0.14);
+  --hover-bg:         rgba(0,0,0,0.04);
+  --hover-bg-strong:  rgba(0,0,0,0.08);
+  --nav-active-bg:    rgba(40,60,200,0.08);
+  --nav-active-color: #2840c8;
+  --nav-active-border:rgba(40,60,200,0.2);
+  --gold:             #2840c8;
+  --gold-hover:       #3850d8;
+  --gold-text:        #ffffff;
+  --scrollbar:        rgba(0,0,0,0.14);
+  --sidebar-w:        0px;
+  --font-ui:          'DM Sans', system-ui, sans-serif;
+  --font-logo:        'Playfair Display', Georgia, serif;
+}
+
+/* ═══════════════════════════════════════════════
+   BASE STYLES
+   ═══════════════════════════════════════════════ */
 @layer base {
-  html {
-    font-family: 'DM Sans', system-ui, sans-serif;
-    -webkit-font-smoothing: antialiased;
-  }
-  body {
-    background-color: var(--bg-base);
-    color: var(--text-primary);
-    min-height: 100vh;
-    transition: background-color 0.2s ease, color 0.2s ease;
-  }
+  html { font-family: var(--font-ui); -webkit-font-smoothing: antialiased; }
+  body { background-color: var(--bg-base); color: var(--text-primary); min-height: 100vh; transition: background-color 0.2s, color 0.2s; }
   * { box-sizing: border-box; }
-  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
   ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 3px; }
-  ::-webkit-scrollbar-thumb:hover { background: var(--scrollbar-hover); }
-  [data-theme="light"] select option { background: #fff; color: #1a1a2e; }
+  ::-webkit-scrollbar-thumb { background: var(--scrollbar); border-radius: 3px; }
 }
 
+/* ═══════════════════════════════════════════════
+   COMPONENT CLASSES
+   ═══════════════════════════════════════════════ */
 @layer components {
   .card {
     background-color: var(--bg-raised);
@@ -85,193 +266,123 @@
     background-color: var(--bg-raised);
     border: 1px solid var(--border);
     border-radius: 0.75rem;
-    transition: all 0.2s;
+    transition: all 0.15s;
     cursor: pointer;
   }
-  .card-hover:hover {
-    border-color: var(--hover-bg-strong);
-    background-color: var(--bg-overlay);
-  }
+  .card-hover:hover { background-color: var(--bg-overlay); border-color: var(--hover-bg-strong); }
+
   .btn-primary {
-    background-color: var(--gold);
-    color: var(--gold-text);
-    font-weight: 600;
-    padding: 0.5rem 1rem;
-    border-radius: 0.5rem;
-    font-size: 0.875rem;
-    transition: all 0.15s;
-    min-height: 44px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.375rem;
+    background-color: var(--gold); color: var(--gold-text);
+    font-weight: 600; padding: 0.5rem 1rem; border-radius: 0.5rem;
+    font-size: 0.875rem; transition: all 0.15s; min-height: 44px;
+    display: inline-flex; align-items: center; justify-content: center; gap: 0.375rem;
   }
   .btn-primary:hover { background-color: var(--gold-hover); }
   .btn-primary:active { transform: scale(0.95); }
   .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+
   .btn-secondary {
-    background-color: var(--hover-bg);
-    color: var(--text-primary);
-    font-weight: 500;
-    padding: 0.5rem 1rem;
-    border-radius: 0.5rem;
-    font-size: 0.875rem;
-    border: 1px solid var(--border);
-    transition: all 0.15s;
-    min-height: 44px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.375rem;
+    background-color: var(--hover-bg); color: var(--text-primary);
+    font-weight: 500; padding: 0.5rem 1rem; border-radius: 0.5rem;
+    font-size: 0.875rem; border: 1px solid var(--border); transition: all 0.15s;
+    min-height: 44px; display: inline-flex; align-items: center; justify-content: center; gap: 0.375rem;
   }
   .btn-secondary:hover { background-color: var(--hover-bg-strong); }
   .btn-secondary:active { transform: scale(0.95); }
+
   .btn-ghost {
-    color: var(--text-secondary);
-    font-weight: 500;
-    padding: 0.5rem 0.75rem;
-    border-radius: 0.5rem;
-    font-size: 0.875rem;
-    transition: all 0.15s;
-    min-height: 44px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.375rem;
+    color: var(--text-secondary); font-weight: 500; padding: 0.5rem 0.75rem;
+    border-radius: 0.5rem; font-size: 0.875rem; transition: all 0.15s;
+    min-height: 44px; display: inline-flex; align-items: center; justify-content: center; gap: 0.375rem;
   }
   .btn-ghost:hover { color: var(--text-primary); background-color: var(--hover-bg); }
   .btn-ghost:active { transform: scale(0.95); }
+
   .btn-danger {
-    background-color: rgba(232,125,125,0.15);
-    color: #e87d7d;
-    font-weight: 500;
-    padding: 0.5rem 1rem;
-    border-radius: 0.5rem;
-    font-size: 0.875rem;
-    border: 1px solid rgba(232,125,125,0.2);
-    transition: all 0.15s;
-    min-height: 44px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.375rem;
+    background-color: rgba(232,125,125,0.15); color: #e87d7d;
+    font-weight: 500; padding: 0.5rem 1rem; border-radius: 0.5rem;
+    font-size: 0.875rem; border: 1px solid rgba(232,125,125,0.2); transition: all 0.15s;
+    min-height: 44px; display: inline-flex; align-items: center; justify-content: center; gap: 0.375rem;
   }
   .btn-danger:hover { background-color: rgba(232,125,125,0.25); }
   .btn-danger:active { transform: scale(0.95); }
+
   .input {
-    background-color: var(--input-bg);
-    border: 1px solid var(--input-border);
-    border-radius: 0.5rem;
-    padding: 0.5rem 0.75rem;
-    color: var(--text-primary);
-    font-size: 0.875rem;
-    outline: none;
-    width: 100%;
-    min-height: 44px;
-    transition: all 0.15s;
-    font-family: inherit;
+    background-color: var(--input-bg); border: 1px solid var(--input-border);
+    border-radius: 0.5rem; padding: 0.5rem 0.75rem; color: var(--text-primary);
+    font-size: 0.875rem; outline: none; width: 100%; min-height: 44px;
+    transition: all 0.15s; font-family: inherit;
   }
   .input::placeholder { color: var(--text-placeholder); }
-  .input:focus { border-color: rgba(230,176,32,0.5); background-color: var(--input-bg-focus); }
+  .input:focus { border-color: var(--gold); background-color: var(--input-bg-focus); }
+
   .textarea {
-    background-color: var(--input-bg);
-    border: 1px solid var(--input-border);
-    border-radius: 0.5rem;
-    padding: 0.75rem;
-    color: var(--text-primary);
-    font-size: 0.875rem;
-    outline: none;
-    width: 100%;
-    min-height: 100px;
-    resize: none;
-    line-height: 1.6;
-    transition: all 0.15s;
-    font-family: inherit;
+    background-color: var(--input-bg); border: 1px solid var(--input-border);
+    border-radius: 0.5rem; padding: 0.75rem; color: var(--text-primary);
+    font-size: 0.875rem; outline: none; width: 100%; min-height: 100px;
+    resize: none; line-height: 1.6; transition: all 0.15s; font-family: inherit;
   }
   .textarea::placeholder { color: var(--text-placeholder); }
-  .textarea:focus { border-color: rgba(230,176,32,0.5); background-color: var(--input-bg-focus); }
+  .textarea:focus { border-color: var(--gold); background-color: var(--input-bg-focus); }
+
   .label {
-    color: var(--text-muted);
-    font-size: 0.7rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    margin-bottom: 0.25rem;
-    display: block;
+    color: var(--text-muted); font-size: 0.7rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.25rem; display: block;
   }
+
   .section-title {
     font-family: 'Playfair Display', Georgia, serif;
-    font-size: 1.125rem;
-    color: var(--text-primary);
-    font-weight: 600;
+    font-size: 1.125rem; color: var(--text-primary); font-weight: 600;
   }
+
   .badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.25rem;
-    padding: 0.125rem 0.5rem;
-    border-radius: 9999px;
-    font-size: 0.7rem;
-    font-weight: 500;
-  }
-  .timetable-cell-empty {
-    background: transparent;
-    border: 1px dashed var(--border);
-    border-radius: 0.5rem;
-    cursor: pointer;
-    transition: all 0.15s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .timetable-cell-empty:hover {
-    background: var(--hover-bg);
-    border-color: var(--border);
-    border-style: solid;
+    display: inline-flex; align-items: center; gap: 0.25rem;
+    padding: 0.125rem 0.5rem; border-radius: 9999px;
+    font-size: 0.7rem; font-weight: 500;
   }
 }
 
-.ghost-text {
-  color: var(--text-muted);
-  font-style: italic;
-  pointer-events: none;
+/* ═══════════════════════════════════════════════
+   LAYOUT VARIANTS — shell structures
+   ═══════════════════════════════════════════════ */
+
+/* EDITORIAL: narrower sidebar, serif logo, left-border lesson accent only */
+[data-style="editorial"] .lesson-card-accent {
+  border-left-width: 2px;
+  border-radius: 4px;
 }
 
-@keyframes fadeIn  { from { opacity: 0 } to { opacity: 1 } }
-@keyframes slideUp { from { opacity: 0; transform: translateY(8px) } to { opacity: 1; transform: translateY(0) } }
-@keyframes slideIn { from { opacity: 0; transform: translateX(-8px) } to { opacity: 1; transform: translateX(0) } }
-.animate-fade-in  { animation: fadeIn  0.3s ease-out; }
-.animate-slide-up { animation: slideUp 0.3s ease-out; }
-.animate-slide-in { animation: slideIn 0.25s ease-out; }
+/* CARDS: no sidebar on the main grid — icon rail only */
+[data-style="cards"] .week-grid-cell {
+  border-radius: 8px;
+}
 
+/* TIMETABLE: no traditional sidebar — everything in topbar */
+[data-style="timetable"] .app-sidebar { display: none !important; }
+[data-style="timetable"] .app-topbar  { display: flex !important; }
+
+/* ─── Animations ─── */
+@keyframes fadeIn  { from { opacity:0 } to { opacity:1 } }
+@keyframes slideUp { from { opacity:0; transform:translateY(8px) } to { opacity:1; transform:translateY(0) } }
+@keyframes slideIn { from { opacity:0; transform:translateX(-8px) } to { opacity:1; transform:translateX(0) } }
+.animate-fade-in  { animation: fadeIn  0.25s ease-out; }
+.animate-slide-up { animation: slideUp 0.25s ease-out; }
+.animate-slide-in { animation: slideIn 0.2s ease-out; }
+
+/* ─── Print ─── */
 @media print {
   body > * { display: none !important; }
   #cover-slip-print {
     display: block !important; position: fixed; inset: 0;
-    background: white; color: black;
-    font-family: 'DM Sans', sans-serif; padding: 2cm; font-size: 11pt;
+    background: white; color: black; font-family: 'DM Sans', sans-serif; padding: 2cm; font-size: 11pt;
   }
-  #cover-slip-print .print-logo-row {
-    display: flex; justify-content: space-between; align-items: center;
-    border-bottom: 2pt solid #333; padding-bottom: 12pt; margin-bottom: 16pt;
-  }
-  #cover-slip-print .print-logo-placeholder {
-    width: 80pt; height: 40pt; border: 1pt dashed #aaa;
-    display: flex; align-items: center; justify-content: center; color: #aaa; font-size: 8pt;
-  }
-  #cover-slip-print .print-title {
-    font-family: 'Playfair Display', Georgia, serif; font-size: 22pt; font-weight: 700; letter-spacing: 0.05em;
-  }
-  #cover-slip-print .print-meta-grid {
-    display: grid; grid-template-columns: 120pt 1fr 120pt 1fr;
-    gap: 8pt 12pt; border-bottom: 1pt solid #ccc; padding-bottom: 12pt; margin-bottom: 12pt;
-  }
-  #cover-slip-print .print-meta-label { font-size: 8pt; text-transform: uppercase; letter-spacing: 0.08em; color: #666; font-weight: 600; }
-  #cover-slip-print .print-meta-value { font-size: 10pt; font-weight: 500; }
-  #cover-slip-print .print-section-label {
-    font-size: 8pt; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; color: #333;
-    margin-bottom: 6pt; border-bottom: 0.5pt solid #ccc; padding-bottom: 4pt;
-  }
-  #cover-slip-print .print-section-content { font-size: 11pt; line-height: 1.5; min-height: 80pt; margin-bottom: 16pt; }
-  #cover-slip-print .print-footer { border-top: 1pt solid #ccc; padding-top: 8pt; font-size: 9pt; color: #666; text-align: center; font-style: italic; }
+  #cover-slip-print .print-logo-row { display:flex; justify-content:space-between; align-items:center; border-bottom:2pt solid #333; padding-bottom:12pt; margin-bottom:16pt; }
+  #cover-slip-print .print-logo-placeholder { width:80pt; height:40pt; border:1pt dashed #bbb; display:flex; align-items:center; justify-content:center; color:#bbb; font-size:8pt; }
+  #cover-slip-print .print-title { font-family:'Playfair Display',Georgia,serif; font-size:22pt; font-weight:700; letter-spacing:0.05em; }
+  #cover-slip-print .print-meta-grid { display:grid; grid-template-columns:120pt 1fr 120pt 1fr; gap:8pt 12pt; border-bottom:1pt solid #ccc; padding-bottom:12pt; margin-bottom:12pt; }
+  #cover-slip-print .print-meta-label { font-size:8pt; text-transform:uppercase; letter-spacing:0.08em; color:#666; font-weight:600; }
+  #cover-slip-print .print-meta-value { font-size:10pt; font-weight:500; }
+  #cover-slip-print .print-section-label { font-size:8pt; text-transform:uppercase; letter-spacing:0.1em; font-weight:700; color:#333; margin-bottom:6pt; border-bottom:0.5pt solid #ddd; padding-bottom:4pt; margin-top:14pt; }
+  #cover-slip-print .print-section-content { font-size:11pt; line-height:1.6; min-height:80pt; white-space:pre-wrap; padding:8pt 0; }
+  #cover-slip-print .print-footer { border-top:1pt solid #ccc; padding-top:8pt; margin-top:16pt; font-size:9pt; color:#666; text-align:center; font-style:italic; }
 }

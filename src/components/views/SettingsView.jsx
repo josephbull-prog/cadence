@@ -9,7 +9,7 @@ import {
   useLessonPlans, useHomework, useMilestones, useClassNotes, useGeneralNotes
 } from '../../lib/hooks'
 import { useToast } from '../../lib/toast'
-import { useTheme } from '../../lib/theme'
+import { useTheme, STYLES } from '../../lib/theme'
 import { setTestMode, isTestMode, db } from '../../lib/storage'
 import { useAuth } from '../../lib/auth'
 import { useQueryClient } from '@tanstack/react-query'
@@ -24,6 +24,76 @@ const CLASS_COLOURS = [
   '#b070c0','#d060a0','#c08060','#8090a0','#60a878',
   '#d4a060','#a06080','#507890','#70b0d0','#c0a840'
 ]
+
+
+function StyleThumbnail({ id }) {
+  const c = 'var(--border)'
+  const t = 'var(--text-muted)'
+  const g = 'var(--gold)'
+  const s = 'var(--bg-surface)'
+  const r = 'var(--bg-raised)'
+
+  if (id === 'default') return (
+    <svg viewBox="0 0 120 64" width="100%" height="64" style={{ display: 'block' }}>
+      <rect width="30" height="64" fill={s} />
+      <rect x="0.5" y="0" width="29" height="64" stroke={c} strokeWidth="0.5" fill="none" />
+      <rect x="6" y="8" width="18" height="5" rx="1" fill={g} opacity="0.7" />
+      {[20,30,40,50].map((y,i) => <rect key={i} x="4" y={y} width="22" height="5" rx="1" fill={t} opacity="0.3" />)}
+      <rect x="30" width="90" height="64" fill="var(--bg-base)" />
+      {[0,1,2,3,4].map(i => <rect key={i} x={34+i*17} y="8" width="13" height="10" rx="1" fill={r} stroke={c} strokeWidth="0.5" />)}
+      {[[34,24,'#6090c0'],[51,24,'#1D9E75'],[34,38,'#D85A30'],[68,38,'#6090c0'],[85,24,'#1D9E75']].map(([x,y,col],i) => (
+        <rect key={i} x={x} y={y} width="13" height="12" rx="1" fill={col} opacity="0.2" stroke={col} strokeWidth="0.5" />
+      ))}
+    </svg>
+  )
+
+  if (id === 'editorial') return (
+    <svg viewBox="0 0 120 64" width="100%" height="64" style={{ display: 'block' }}>
+      <rect width="26" height="64" fill={s} />
+      <rect x="4" y="8" width="16" height="6" rx="0.5" fill={t} opacity="0.8" />
+      {[20,29,38,47].map((y,i) => <rect key={i} x="4" y={y} width="18" height="4" rx="0.5" fill={t} opacity="0.25" />)}
+      <rect x="26" width="94" height="64" fill="var(--bg-base)" />
+      {[0,1,2,3,4].map(i => <rect key={i} x={30+i*18} y="6" width="14" height="8" rx="0" fill="none" stroke={c} strokeWidth="0.5" />)}
+      {[[30,18,'#378ADD'],[48,18,'#D85A30'],[30,30,'#1D9E75'],[66,30,'#378ADD'],[84,18,'#1D9E75']].map(([x,y,col],i) => (
+        <g key={i}><rect x={x} y={y} width="2" height="11" fill={col} /><rect x={x+3} y={y} width="11" height="11" rx="0" fill={r} stroke={c} strokeWidth="0.5" /></g>
+      ))}
+    </svg>
+  )
+
+  if (id === 'cards') return (
+    <svg viewBox="0 0 120 64" width="100%" height="64" style={{ display: 'block' }}>
+      <rect width="18" height="64" fill={s} />
+      {[8,22,36,50].map((y,i) => <rect key={i} x="3" y={y} width="12" height="10" rx="2" fill={t} opacity={i===0?0.5:0.2} />)}
+      <rect x="18" width="102" height="64" fill="var(--bg-base)" />
+      {[0,1,2,3,4].map(i => (
+        <rect key={i} x={22+i*20} y="6" width="17" height="52" rx="3" fill={r} stroke={c} strokeWidth="0.5" />
+      ))}
+      {[[22,14,'#378ADD'],[42,10,'#D85A30'],[42,24,'#1D9E75'],[62,14,'#378ADD'],[82,10,'#D85A30']].map(([x,y,col],i) => (
+        <rect key={i} x={x+1} y={y} width="2.5" height="11" rx="1" fill={col} />
+      ))}
+    </svg>
+  )
+
+  if (id === 'timetable') return (
+    <svg viewBox="0 0 120 64" width="100%" height="64" style={{ display: 'block' }}>
+      <rect width="120" height="14" fill={s} />
+      {['W','H','N','C'].map((lbl, i) => (
+        <text key={i} x={28+i*22} y="10" fontSize="5" fill={t} textAnchor="middle">{lbl}</text>
+      ))}
+      <rect y="14" x="0" width="30" height="50" fill={s} />
+      {['Yr9 Maths','Yr8 Sci','Yr10 Eng'].map((lbl,i) => (
+        <g key={i}><rect x="2" y={18+i*16} width="3" height="11" rx="1" fill={['#378ADD','#1D9E75','#D85A30'][i]} /><text x="8" y={26+i*16} fontSize="4.5" fill={t}>{lbl}</text></g>
+      ))}
+      {[0,1,2,3,4].map(di => [0,1,2].map(ri => {
+        const colors = ['#378ADD','#1D9E75','#D85A30']
+        const filled = (di+ri)%3 !== 0
+        return filled ? <rect key={`${di}${ri}`} x={31+di*18} y={18+ri*16} width="16" height="11" rx="1.5" fill={colors[ri]} opacity="0.18" stroke={colors[ri]} strokeWidth="0.5" /> : <rect key={`${di}${ri}`} x={31+di*18} y={18+ri*16} width="16" height="11" rx="1.5" fill="none" stroke={c} strokeWidth="0.5" strokeDasharray="2,1.5" />
+      }))}
+    </svg>
+  )
+
+  return null
+}
 
 function Section({ title, children }) {
   return (
@@ -141,7 +211,7 @@ function TimetableBuilder({ slots, classes, timetableType, onAddSlot, onDeleteSl
 
 export default function SettingsView() {
   const toast = useToast()
-  const { theme, toggleTheme } = useTheme()
+  const { style, setStyle, mode, toggleMode } = useTheme()
   const { user } = useAuth()
   const qc = useQueryClient()
 
@@ -228,26 +298,24 @@ export default function SettingsView() {
   const handleYearEnd = async () => {
     if (resetConfirm !== 'RESET') { toast.error('Type RESET to confirm'); return }
     try {
-      // Delete all lesson plans, milestones, cover slips, homework
-      // Reset book brilliant flags on all classes
       const database = db()
-      for (const plan of (await database.from('lesson_plans').select('*').eq('user_id', user.id)).data || []) {
-        await database.from('lesson_plans').delete().eq('id', plan.id)
+      const uid = user.id
+      const del = async (table) => {
+        const { data } = await database.from(table).select('*').eq('user_id', uid)
+        for (const row of data || []) await database.from(table).delete().eq('id', row.id)
       }
-      for (const m of (await database.from('milestones').select('*').eq('user_id', user.id)).data || []) {
-        await database.from('milestones').delete().eq('id', m.id)
-      }
-      for (const c of (await database.from('cover_slips').select('*').eq('user_id', user.id)).data || []) {
-        await database.from('cover_slips').delete().eq('id', c.id)
-      }
-      for (const h of (await database.from('homework').select('*').eq('user_id', user.id)).data || []) {
-        await database.from('homework').delete().eq('id', h.id)
-      }
-      for (const cls of classes) {
-        await database.from('classes').update({ book_brilliant_done: false, book_brilliant_reset_date: null }).eq('id', cls.id)
-      }
+      // Clear all per-year data
+      await del('lesson_plans')
+      await del('milestones')
+      await del('cover_slips')
+      await del('homework')
+      await del('timetable_slots')
+      await del('holidays')
+      await del('class_notes')
+      // Delete classes (cascades to slots already deleted)
+      await del('classes')
       await qc.invalidateQueries()
-      toast.success('Year-end reset complete')
+      toast.success('New school year started — classes, timetable, holidays and lesson data cleared. Schemes of work kept.')
       setShowReset(false)
       setResetConfirm('')
     } catch (e) { toast.error('Reset failed: ' + e.message) }
@@ -280,6 +348,15 @@ export default function SettingsView() {
   return (
     <div className="p-4 lg:p-6 max-w-2xl mx-auto animate-fade-in space-y-5">
       <h2 className="font-display text-2xl font-semibold" style={{ color: 'var(--text-primary)' }}>Settings</h2>
+      <div className="flex items-center justify-between p-3 rounded-xl" style={{ background: 'var(--hover-bg)', border: '1px solid var(--border)' }}>
+        <div>
+          <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>Got files to import?</p>
+          <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>Import timetable (PDF), calendar (Excel) or schemes of work (Word)</p>
+        </div>
+        <a href="/import" className="btn-secondary text-xs gap-2" style={{ minHeight: 'unset', padding: '6px 12px', textDecoration: 'none' }}>
+          Import →
+        </a>
+      </div>
 
       {/* Profile */}
       <Section title="Your Profile">
@@ -312,15 +389,37 @@ export default function SettingsView() {
 
       {/* Appearance */}
       <Section title="Appearance">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>Theme</p>
-            <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>Switch between dark and light mode</p>
+        <div>
+          <label className="label">Layout style</label>
+          <div className="grid grid-cols-2 gap-2 mt-1">
+            {STYLES.map(s => (
+              <button key={s.id} onClick={() => setStyle(s.id)}
+                className="flex flex-col items-start gap-1 rounded-lg border text-left transition-all overflow-hidden"
+                style={{
+                  background: style === s.id ? 'var(--nav-active-bg)' : 'var(--hover-bg)',
+                  border: style === s.id ? '2px solid var(--gold)' : '1px solid var(--border)',
+                }}>
+                {/* Mini preview thumbnail */}
+                <div style={{ width: '100%', height: '64px', background: 'var(--bg-base)', overflow: 'hidden', position: 'relative', flexShrink: 0 }}>
+                  <StyleThumbnail id={s.id} />
+                </div>
+                <div style={{ padding: '8px 10px 10px' }}>
+                  <div className="text-sm font-medium" style={{ color: style === s.id ? 'var(--nav-active-color)' : 'var(--text-primary)' }}>{s.label}</div>
+                  <div className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>{s.desc}</div>
+                </div>
+              </button>
+            ))}
           </div>
-          <button onClick={toggleTheme}
+        </div>
+        <div className="flex items-center justify-between pt-3" style={{ borderTop: '1px solid var(--border)' }}>
+          <div>
+            <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>Mode</p>
+            <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>Switch between dark and light</p>
+          </div>
+          <button onClick={toggleMode}
             className="flex items-center gap-2 px-4 py-2 rounded-lg border text-sm font-medium transition-all"
             style={{ background: 'var(--hover-bg)', border: '1px solid var(--border)', color: 'var(--text-primary)' }}>
-            {theme === 'dark' ? <><Sun size={16} /> Light mode</> : <><Moon size={16} /> Dark mode</>}
+            {mode === 'dark' ? <><Sun size={16} /> Light mode</> : <><Moon size={16} /> Dark mode</>}
           </button>
         </div>
       </Section>
@@ -477,7 +576,7 @@ export default function SettingsView() {
           <div className="space-y-3 p-4 rounded-lg border border-red-400/30" style={{ background: 'rgba(232,125,125,0.08)' }}>
             <div className="flex items-start gap-2">
               <AlertTriangle size={16} className="text-red-400 shrink-0 mt-0.5" />
-              <p className="text-sm text-red-300">This will permanently delete all lesson plans, cover slips, milestones, and homework. Your classes, timetable structure, and SoWs will be kept. This cannot be undone.</p>
+              <p className="text-sm text-red-300">This will permanently delete: all classes, timetable slots, holidays, lesson plans, cover slips, milestones, and homework. Schemes of work and notes are kept. This cannot be undone.</p>
             </div>
             <input className="input" placeholder='Type RESET to confirm' value={resetConfirm} onChange={e => setResetConfirm(e.target.value)} />
             <div className="flex gap-2">

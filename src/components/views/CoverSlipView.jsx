@@ -2,10 +2,10 @@ import { useState, useEffect, useRef } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import { format, parseISO } from 'date-fns'
 import { Printer, Plus, X, ChevronDown, ChevronUp, Filter } from 'lucide-react'
-import { useClasses, useCoverSlips, useAddCoverSlip, useLessonPlans, useProfile } from '../../lib/hooks'
+import { useClasses, useCoverSlips, useAddCoverSlip, useLessonPlans, useProfile, useUpsertProfile } from '../../lib/hooks'
 import { useToast } from '../../lib/toast'
 
-function generatePDFHtml(slip, className, logoDataUrl) {
+function generatePDFHtml(slip, className, logoDataUrl, standardInstructions) {
   return `<!DOCTYPE html>
 <html>
 <head>
@@ -45,14 +45,15 @@ function generatePDFHtml(slip, className, logoDataUrl) {
   ${slip.key_question ? `<div class="section-label">KEY QUESTION</div><div class="section-content">${slip.key_question}</div>` : ''}
   <div class="section-label">TASK</div>
   <div class="section-content">${slip.task_instructions || ''}</div>
+  ${standardInstructions ? `<div class="section-label" style="margin-top:10pt">STANDARD INSTRUCTIONS</div><div class="section-content" style="font-size:10pt;color:#555;min-height:unset">${standardInstructions}</div>` : ''}
   <div class="footer">Thank you for covering this lesson.</div>
 </body>
 </html>`
 }
 
-function handlePrintSlip(slip, className) {
+function handlePrintSlip(slip, className, standardInstructions) {
   const logoDataUrl = localStorage.getItem('cadence_school_logo') || ''
-  const html = generatePDFHtml(slip, className, logoDataUrl)
+  const html = generatePDFHtml(slip, className, logoDataUrl, standardInstructions)
   const win = window.open('', '_blank', 'width=800,height=900')
   if (!win) { alert('Please allow popups to print cover slips'); return }
   win.document.write(html)
@@ -69,6 +70,7 @@ export default function CoverSlipView() {
   const { data: lessonPlans = [] } = useLessonPlans()
   const { data: profile } = useProfile()
   const addCoverSlip = useAddCoverSlip()
+  const upsertProfile = useUpsertProfile()
 
   const prefillClassId = searchParams.get('classId')
   const prefillDate = searchParams.get('date')
@@ -85,12 +87,17 @@ export default function CoverSlipView() {
     buddy_room: ''
   })
   const [showForm, setShowForm] = useState(!!prefillClassId)
+  const [showStdInstructions, setShowStdInstructions] = useState(false)
   const [importFromLesson, setImportFromLesson] = useState(false)
   const [filterClassId, setFilterClassId] = useState('')
   const [expandedSlip, setExpandedSlip] = useState(null)
 
+  const stdInstructions = profile?.cover_standard_instructions || ''
+  const [editingStd, setEditingStd] = useState(stdInstructions)
+
   useEffect(() => {
     if (profile?.display_name) setForm(f => ({ ...f, teacher_name: f.teacher_name || profile.display_name }))
+    if (profile?.cover_standard_instructions) setEditingStd(profile.cover_standard_instructions)
   }, [profile])
 
   useEffect(() => {
@@ -123,7 +130,7 @@ export default function CoverSlipView() {
     try {
       await addCoverSlip.mutateAsync(form)
       const cls = classes.find(c => c.id === form.class_id)
-      handlePrintSlip(form, cls?.name || '')
+      handlePrintSlip(form, cls?.name || '', stdInstructions)
       setShowForm(false)
       toast.success('Cover slip saved')
     } catch { toast.error('Failed to save') }
@@ -198,6 +205,50 @@ export default function CoverSlipView() {
             {classes.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>
         </div>
+      </div>
+
+      {/* Standard instructions panel */}
+      <div className="card p-4 mb-5">
+        <div className="flex items-center justify-between mb-2">
+          <div>
+            <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>Standard instructions</p>
+            <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>Added to every printed cover slip automatically</p>
+          </div>
+          {!showStdInstructions ? (
+            <button onClick={() => setShowStdInstructions(true)} className="btn-ghost text-xs" style={{ minHeight: 'unset', padding: '4px 10px' }}>
+              {stdInstructions ? 'Edit' : 'Add'}
+            </button>
+          ) : (
+            <div className="flex gap-2">
+              <button onClick={() => setShowStdInstructions(false)} className="btn-ghost text-xs" style={{ minHeight: 'unset', padding: '4px 10px' }}>Cancel</button>
+              <button
+                onClick={async () => {
+                  try {
+                    await upsertProfile.mutateAsync({ cover_standard_instructions: editingStd })
+                    setShowStdInstructions(false)
+                    toast.success('Standard instructions saved')
+                  } catch { toast.error('Failed to save') }
+                }}
+                className="btn-primary text-xs" style={{ minHeight: 'unset', padding: '4px 12px' }}>
+                Save
+              </button>
+            </div>
+          )}
+        </div>
+        {showStdInstructions ? (
+          <textarea
+            className="textarea"
+            rows={3}
+            value={editingStd}
+            onChange={e => setEditingStd(e.target.value)}
+            placeholder="e.g. Exercise books are at the back in the boxes labelled by class. Students should work in silence."
+            autoFocus
+          />
+        ) : stdInstructions ? (
+          <p className="text-sm whitespace-pre-wrap" style={{ color: 'var(--text-secondary)' }}>{stdInstructions}</p>
+        ) : (
+          <p className="text-sm italic" style={{ color: 'var(--text-muted)' }}>None set — will not appear on cover slips.</p>
+        )}
       </div>
 
       {filteredSlips.length === 0 && (

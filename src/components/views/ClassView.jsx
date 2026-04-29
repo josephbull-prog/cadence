@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { format, parseISO, isPast, addDays, isToday, isFuture } from 'date-fns'
-import { BookCheck, FileText, ClipboardList, Plus, ChevronLeft, AlertCircle, CheckCircle2, Clock, Edit2 } from 'lucide-react'
+import { BookCheck, FileText, ClipboardList, Plus, ChevronLeft, AlertCircle, CheckCircle2, Clock, Edit2, ExternalLink } from 'lucide-react'
 import {
   useClasses, useLessonPlans, useMilestones, useCoverSlips,
   useHomework, useClassNotes, useUpsertClassNote,
@@ -104,10 +104,13 @@ export default function ClassView() {
     if (!cls?.sow_id) return null
     const sow = schemes.find(s => s.id === cls.sow_id)
     if (!sow) return null
-    if (plan.sow_index !== null && plan.sow_index !== undefined) {
-      return { on: true, text: `SoW ${plan.sow_index + 1}: ${sow.lessons[plan.sow_index] || ''}` }
+    if (plan.sow_skipped && plan.sow_index !== null && plan.sow_index !== undefined) {
+      return { on: false, skipped: true, text: `Skipped SoW #${plan.sow_index + 1}: ${sow.lessons[plan.sow_index] || ''}` }
     }
-    return { on: false, text: 'Not on SoW' }
+    if (plan.sow_index !== null && plan.sow_index !== undefined) {
+      return { on: true, skipped: false, text: `SoW #${plan.sow_index + 1}: ${sow.lessons[plan.sow_index] || ''}` }
+    }
+    return { on: false, skipped: false, text: 'Custom' }
   }
 
   if (!cls) return <div className="p-6" style={{ color: 'var(--text-muted)' }}>Class not found</div>

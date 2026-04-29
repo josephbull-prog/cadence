@@ -10,6 +10,8 @@ import HomeworkView from './components/views/HomeworkView'
 import NotesView from './components/views/NotesView'
 import SettingsView from './components/views/SettingsView'
 import CoverSlipView from './components/views/CoverSlipView'
+import ClassPlannerView from './components/views/ClassPlannerView'
+import ImportView from './components/views/ImportView'
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth()
@@ -35,6 +37,8 @@ function AppRoutes() {
       }>
         <Route index element={<Navigate to="/week" replace />} />
         <Route path="week" element={<WeekView />} />
+        <Route path="class-planner" element={<ClassPlannerView />} />
+        <Route path="import" element={<ImportView />} />
         <Route path="class/:classId" element={<ClassView />} />
         <Route path="homework" element={<HomeworkView />} />
         <Route path="notes" element={<NotesView />} />
