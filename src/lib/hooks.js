@@ -109,7 +109,10 @@ export function useAddClass() {
   const { user } = useAuth()
   return useMutation({
     mutationFn: async (cls) => {
-      const { data, error } = await getDB().from('classes').insert({ user_id: user.id, book_brilliant_done: false, ...cls })
+      const cleaned = { ...cls }
+      if (cleaned.sow_id === '') cleaned.sow_id = null
+      if (cleaned.room === '') cleaned.room = null
+      const { data, error } = await getDB().from('classes').insert({ user_id: user.id, book_brilliant_done: false, ...cleaned })
       if (error) throw error
       return data
     },
@@ -121,6 +124,8 @@ export function useUpdateClass() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: async ({ id, ...updates }) => {
+      if (updates.sow_id === '') updates.sow_id = null
+      if (updates.room === '') updates.room = null
       const { data, error } = await getDB().from('classes').update(updates).eq('id', id)
       if (error) throw error
       return data

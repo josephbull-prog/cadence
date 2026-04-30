@@ -28,26 +28,22 @@ export function toISO(d) {
 
 /**
  * Check whether a date falls within any holiday range.
+ * Compares YYYY-MM-DD strings to avoid timezone drift entirely.
  */
 export function isHoliday(date, holidays) {
-  const d = toDate(date)
-  return holidays.some(h => {
-    const start = toDate(h.start_date)
-    const end = toDate(h.end_date)
-    return d >= start && d <= end
-  })
+  const d = toISO(toDate(date))
+  if (!d) return false
+  return holidays.some(h => d >= h.start_date && d <= h.end_date)
 }
 
 /**
  * Get the holiday label for a date (if any).
+ * Compares YYYY-MM-DD strings to avoid timezone drift.
  */
 export function getHolidayLabel(date, holidays) {
-  const d = toDate(date)
-  const h = holidays.find(h => {
-    const start = toDate(h.start_date)
-    const end = toDate(h.end_date)
-    return d >= start && d <= end
-  })
+  const d = toISO(toDate(date))
+  if (!d) return null
+  const h = holidays.find(h => d >= h.start_date && d <= h.end_date)
   return h?.label || null
 }
 
@@ -62,12 +58,12 @@ function countHolidayWeeks(cycleStart, targetDate, holidays) {
 
   while (isBefore(weekStart, target)) {
     const weekEnd = addDays(weekStart, 4) // Mon → Fri
-    // Is this entire work-week covered by holidays?
-    const entireWeekHoliday = holidays.some(h => {
-      const hs = toDate(h.start_date)
-      const he = toDate(h.end_date)
-      return hs <= weekStart && he >= weekEnd
-    })
+    // Compare as strings to avoid timezone drift
+    const weekStartISO = toISO(weekStart)
+    const weekEndISO = toISO(weekEnd)
+    const entireWeekHoliday = holidays.some(h =>
+      h.start_date <= weekStartISO && h.end_date >= weekEndISO
+    )
     if (entireWeekHoliday) count++
     weekStart = addWeeks(weekStart, 1)
   }
@@ -236,29 +232,24 @@ export function getSoWSuggestion(classId, classes, schemesOfWork, lessonPlans) {
          p.sow_index !== null && p.sow_index !== undefined
   )
 
-  // Build sets of taught and skipped indices
-  const taughtIndices = new Set(sowPlans.filter(p => !p.sow_skipped).map(p => p.sow_index))
+  // "Used" means taught OR skipped — both advance the sequence
+  const usedIndices = new Set(sowPlans.map(p => p.sow_index))
   const skippedIndices = new Set(sowPlans.filter(p => p.sow_skipped).map(p => p.sow_index))
 
-  // Find the highest index that has been taught (not skipped) — start searching from there
-  const maxTaught = taughtIndices.size > 0 ? Math.max(...taughtIndices) : -1
-
-  // Next suggestion: first index after maxTaught that hasn't been taught
-  let nextIndex = maxTaught + 1
-  while (nextIndex < sow.lessons.length) {
-    if (!taughtIndices.has(nextIndex)) break
+  // Next suggestion: first index not yet used (taught or skipped)
+  let nextIndex = 0
+  while (nextIndex < sow.lessons.length && usedIndices.has(nextIndex)) {
     nextIndex++
   }
 
   if (nextIndex >= sow.lessons.length) return null
 
-  // Count remaining lessons (not taught, not skipped)
-  const remaining = sow.lessons.filter((_, i) => i > nextIndex && !taughtIndices.has(i)).length
+  // Count remaining after this one
+  const remaining = sow.lessons.length - nextIndex - 1
 
   return {
     title: sow.lessons[nextIndex],
     index: nextIndex,
-    isSkipped: skippedIndices.has(nextIndex),
     remaining,
     total: sow.lessons.length,
   }
@@ -279,16 +270,17 @@ export function getSoWProgress(classId, classes, schemesOfWork, lessonPlans) {
   )
   const taughtIndices = new Set(sowPlans.filter(p => !p.sow_skipped).map(p => p.sow_index))
   const skippedIndices = new Set(sowPlans.filter(p => p.sow_skipped).map(p => p.sow_index))
+  const usedIndices = new Set(sowPlans.map(p => p.sow_index))
 
-  const maxTaught = taughtIndices.size > 0 ? Math.max(...taughtIndices) : -1
-  let nextIdx = maxTaught + 1
-  while (nextIdx < sow.lessons.length && taughtIndices.has(nextIdx)) nextIdx++
+  // Next is the first index not yet used
+  let nextIdx = 0
+  while (nextIdx < sow.lessons.length && usedIndices.has(nextIdx)) nextIdx++
 
   return sow.lessons.map((title, i) => ({
     index: i,
     title,
-    status: taughtIndices.has(i) ? 'taught'
-          : skippedIndices.has(i) ? 'skipped'
+    status: skippedIndices.has(i) ? 'skipped'
+          : taughtIndices.has(i) ? 'taught'
           : i === nextIdx ? 'next'
           : 'upcoming',
   }))
@@ -326,10 +318,7 @@ export function getBookBrilliantStatus(cls, holidays) {
  * (start_date === end_date). Covers INSET days, odd days off, etc.
  */
 export function isSingleDayHoliday(date, holidays) {
-  const d = toDate(date)
-  return holidays.some(h => {
-    const start = toDate(h.start_date)
-    const end = toDate(h.end_date)
-    return d >= start && d <= end && h.start_date === h.end_date
-  })
+  const d = toISO(toDate(date))
+  if (!d) return false
+  return holidays.some(h => d >= h.start_date && d <= h.end_date && h.start_date === h.end_date)
 }

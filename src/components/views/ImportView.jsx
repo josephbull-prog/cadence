@@ -457,11 +457,18 @@ async function parseCalendarXlsx(file) {
   const wb = XLSX.read(arrayBuffer, { type: 'array', cellDates: true })
 
   const results = []
+  // Format date as YYYY-MM-DD without timezone shift.
+  // new Date(serial) creates UTC midnight — toISOString() is safe only if we
+  // build the date from UTC parts directly.
   const fmt = d => {
     if (!d) return ''
     try {
       const dt = d instanceof Date ? d : new Date(d)
-      return dt.toISOString().slice(0, 10)
+      // Use UTC getters to avoid local-timezone rollback
+      const y = dt.getUTCFullYear()
+      const m = String(dt.getUTCMonth() + 1).padStart(2, '0')
+      const day = String(dt.getUTCDate()).padStart(2, '0')
+      return `${y}-${m}-${day}`
     } catch { return '' }
   }
 
@@ -560,26 +567,50 @@ async function parseCalendarXlsx(file) {
   }
 
   // ── CE Day tab — curriculum enrichment days ──────────────────────────────
+  // The CE Day sheet has a date string in col B like "Thursday 16th October 2025"
+  // and a term label in col A. Only 3 real rows exist — guard against over-reading.
   const ceWs = wb.Sheets['CE Day']
   if (ceWs) {
     const rows = XLSX.utils.sheet_to_json(ceWs, { header: 1, defval: null })
+    let ceCount = 0
     for (const row of rows.slice(1)) {
+      if (ceCount >= 10) break // safety cap
+
       const term = row[0] ? String(row[0]).trim() : ''
       const dateVal = row[1]
-      if (!dateVal || typeof term !== 'string' || !term) continue
-      if (!(dateVal instanceof Date) && typeof dateVal !== 'number') continue
 
-      let date = dateVal instanceof Date ? dateVal : new Date((dateVal - 25569) * 86400000)
-      if (isNaN(date.getTime())) continue
+      if (!term || !dateVal) continue
+      if (typeof term === 'number') continue
+      if (/total|ce day|date|term/i.test(term)) continue
+
+      let date = null
+      if (dateVal instanceof Date) {
+        date = dateVal
+      } else if (typeof dateVal === 'number' && dateVal > 40000 && dateVal < 60000) {
+        // Excel serial date
+        date = new Date((dateVal - 25569) * 86400000)
+      } else if (typeof dateVal === 'string' && dateVal.trim()) {
+        // Text date like "Thursday 16th October 2025"
+        const cleaned = dateVal.replace(/\b(\d+)(st|nd|rd|th)\b/gi, '$1').trim()
+        const parsed = new Date(cleaned)
+        if (!isNaN(parsed.getTime())) date = parsed
+      }
+
+      if (!date || isNaN(date.getTime())) continue
+
+      // Sanity: must be a plausible school year
+      const yr = date.getUTCFullYear()
+      if (yr < 2020 || yr > 2035) continue
 
       results.push({
         category: 'ce',
-        label: `CE Day (${term})`,
+        label: 'CE Day (' + term + ')',
         start_date: fmt(date),
         end_date: fmt(date),
         keep: true,
         note: '',
       })
+      ceCount++
     }
   }
 

@@ -136,11 +136,40 @@ export default function DayPanel({ lesson, onClose }) {
     setDirty(true)
   }
 
-  // When user skips — clear content (or keep what they typed), mark as skipped
-  const handleSoWSkip = () => {
-    setSowMode('skipped')
-    // Keep any content they already typed as a note about the skip
-    setDirty(true)
+  // When user skips:
+  // 1. Save a separate skip record (different plan row, no date — just marks the index used)
+  // 2. Keep the panel open so the teacher can plan the replacement lesson
+  // 3. Invalidate so getSoWSuggestion immediately shows the next lesson
+  const handleSoWSkip = async () => {
+    if (!suggestion) return
+    setSaving(true)
+    try {
+      // Write a dateless skip record to mark this sow_index as used for this class.
+      // It has no date/period so it won't appear as a lesson in the week view —
+      // it just advances the sequence counter.
+      await upsertPlan.mutateAsync({
+        user_id: user.id,
+        class_id: classId,
+        date: null,
+        period_number: null,
+        plan_content: null,
+        notes: null,
+        resource_url: null,
+        resource_label: null,
+        sow_index: suggestion.index,
+        sow_skipped: true,
+        is_off_piste: false,
+      })
+      // Invalidate so the suggestion bar re-renders with the next lesson
+      await qc.invalidateQueries({ queryKey: ['lesson_plans'] })
+      toast.success(`Skipped "${suggestion.title}" — next lesson suggested`)
+      // Reset sowMode so the new suggestion bar appears fresh
+      setSowMode('suggest')
+    } catch (err) {
+      toast.error('Failed to skip: ' + err.message)
+    } finally {
+      setSaving(false)
+    }
   }
 
   // Switch to freeform custom entry
@@ -156,8 +185,7 @@ export default function DayPanel({ lesson, onClose }) {
   const handleSave = async () => {
     setSaving(true)
     try {
-      const isSowAccepted = sowMode === 'accepted' && suggestion
-      const isSowSkipped = sowMode === 'skipped' && suggestion
+      const isSowAccepted = sowMode === 'accepted' && !!suggestion
 
       const planData = isInsetDay
         ? {
@@ -184,13 +212,13 @@ export default function DayPanel({ lesson, onClose }) {
             notes,
             resource_url: resourceUrl.trim() || null,
             resource_label: resourceLabel.trim() || null,
-            sow_index: (isSowAccepted || isSowSkipped) ? suggestion.index : (existingPlan?.sow_index ?? null),
-            sow_skipped: isSowSkipped,
+            sow_index: isSowAccepted ? suggestion.index : (existingPlan?.sow_index ?? null),
+            sow_skipped: false,
             is_off_piste: sowMode === 'custom',
           }
 
       await upsertPlan.mutateAsync(planData)
-      toast.success(isSowSkipped ? 'Lesson skipped in SoW' : 'Lesson saved')
+      toast.success('Lesson saved')
       onClose()
     } catch (err) {
       toast.error('Failed to save: ' + err.message)
@@ -316,18 +344,7 @@ export default function DayPanel({ lesson, onClose }) {
             </div>
           )}
 
-          {sowMode === 'skipped' && (
-            <div>
-              <label className="label">Reason for skipping (optional)</label>
-              <textarea
-                value={content}
-                onChange={e => { setContent(e.target.value); setDirty(true) }}
-                placeholder="e.g. Covered in previous lesson, assessment week, ran out of time…"
-                className="textarea"
-                rows={3}
-              />
-            </div>
-          )}
+{/* No textarea when skipping — just mark it and move on */}
 
           {/* Resource link */}
           <div>
@@ -393,7 +410,7 @@ export default function DayPanel({ lesson, onClose }) {
           <button onClick={onClose} className="btn-ghost flex-1">{dirty ? 'Discard' : 'Close'}</button>
           <button onClick={handleSave} disabled={saving}
             className="btn-primary flex-1 disabled:opacity-40">
-            {saving ? 'Saving…' : sowMode === 'skipped' ? 'Mark skipped' : 'Save'}
+            {saving ? 'Saving…' : 'Save'}
           </button>
         </div>
       </div>
