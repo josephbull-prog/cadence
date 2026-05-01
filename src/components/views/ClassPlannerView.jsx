@@ -175,21 +175,31 @@ export default function ClassPlannerView() {
                             background: color + '15', border: `1px solid ${color}30`,
                             borderLeftWidth: '3px', borderLeftColor: color,
                             padding: '5px 7px', textAlign: 'left', cursor: 'pointer',
-                            display: 'flex', flexDirection: 'column', justifyContent: 'center',
+                            display: 'flex', flexDirection: 'column', justifyContent: 'flex-start',
+                            overflow: 'hidden',
                             transition: 'all 0.12s',
                           }}
                           onMouseEnter={e => { e.currentTarget.style.background = color + '25' }}
                           onMouseLeave={e => { e.currentTarget.style.background = color + '15' }}
                         >
-                          <div style={{ fontSize: '10px', color: 'var(--text-muted)', marginBottom: '1px' }}>P{slot.period_number}</div>
+                          <div style={{ fontSize: '10px', color: 'var(--text-muted)', lineHeight: '13px', flexShrink: 0 }}>P{slot.period_number}</div>
                           {plan?.plan_content ? (
-                            <div style={{ fontSize: '11px', color: 'var(--text-primary)', lineHeight: 1.25, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
+                            <div style={{
+                              fontSize: '11px', color: 'var(--text-primary)',
+                              lineHeight: '14px',
+                              maxHeight: '28px',
+                              overflow: 'hidden',
+                              display: '-webkit-box',
+                              WebkitLineClamp: 2,
+                              WebkitBoxOrient: 'vertical',
+                              flexShrink: 0,
+                            }}>
                               {plan.plan_content}
                             </div>
                           ) : (
-                            <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontStyle: 'italic' }}>No plan yet</div>
+                            <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontStyle: 'italic', lineHeight: '14px' }}>No plan yet</div>
                           )}
-                          <div style={{ display: 'flex', gap: '3px', marginTop: '2px' }}>
+                          <div style={{ display: 'flex', gap: '3px', marginTop: 'auto', flexShrink: 0 }}>
                             {plan?.notes && <StickyNote size={9} style={{ color: 'var(--gold)' }} />}
                             {hwDue?.length > 0 && <BookCheck size={9} style={{ color: '#7db88d' }} />}
                           </div>

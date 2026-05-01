@@ -120,9 +120,9 @@ export default function WeekView() {
         </div>
       ) : (
         <div className="overflow-x-auto -mx-4 px-4">
-          <div className="min-w-[600px]">
+          <div style={{ minWidth: "600px", width: "100%" }}>
             {/* Day headers */}
-            <div className="grid mb-2" style={{ gridTemplateColumns: '56px repeat(5, 1fr)' }}>
+            <div className="grid mb-2" style={{ gridTemplateColumns: '40px repeat(5, minmax(0, 1fr))' }}>
               <div />
               {days.map(day => {
                 const holidayLabel = getHolidayLabel(day.date, holidays)
@@ -130,7 +130,7 @@ export default function WeekView() {
                 const isSingle = isSingleDayHoliday(day.date, holidays)
                 const today = isToday(day.date)
                 return (
-                  <div key={day.iso} className={`text-center pb-2 px-1 ${isHol && !isSingle ? 'opacity-40' : ''}`}>
+                  <div key={day.iso} className={`text-center pb-2 px-1 ${isHol && !isSingle ? 'opacity-40' : ''}`} style={{ minWidth: 0 }}>
                     <p className="text-xs uppercase tracking-wider font-medium"
                       style={{ color: today ? 'var(--gold)' : 'var(--text-muted)' }}>{day.short}</p>
                     <p className="text-lg font-semibold mt-0.5"
@@ -147,9 +147,9 @@ export default function WeekView() {
 
             {/* Period rows — one row per period, grid stays intact */}
             {activePeriods.map(period => (
-              <div key={period} className="grid mb-1.5" style={{ gridTemplateColumns: '56px repeat(5, 1fr)' }}>
-                <div className="flex items-center justify-center">
-                  <span className="text-xs font-mono" style={{ color: 'var(--text-muted)' }}>P{period}</span>
+              <div key={period} className="grid mb-1.5" style={{ gridTemplateColumns: '40px repeat(5, minmax(0, 1fr))' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '40px', flexShrink: 0 }}>
+                  <span style={{ fontSize: '10px', fontFamily: 'monospace', color: 'var(--text-muted)' }}>P{period}</span>
                 </div>
 
                 {days.map(day => {
@@ -168,8 +168,9 @@ export default function WeekView() {
                         <button
                           key={day.iso}
                           onClick={() => setSelectedLesson({ date: day.iso, classId: null, period, planId: null })}
-                          className="mx-0.5 h-14 rounded-lg text-xs transition-all flex flex-col items-center justify-center gap-0.5"
+                          className="mx-0.5 rounded-lg text-xs transition-all flex flex-col items-center justify-center gap-0.5"
                           style={{
+                            height: '56px', minHeight: '56px', maxHeight: '56px', minWidth: 0,
                             background: 'rgba(96,144,192,0.08)',
                             border: '1px solid rgba(96,144,192,0.25)',
                             color: '#6090c0'
@@ -181,21 +182,21 @@ export default function WeekView() {
                       )
                     }
                     // Other periods on a single-day holiday: empty cell, no dashed border
-                    return <div key={day.iso} className="mx-0.5 h-14" />
+                    return <div key={day.iso} style={{ height: '56px', minWidth: 0 }} className="mx-0.5" />
                   }
 
                   // Multi-day holiday
                   if (isHol) {
                     return (
-                      <div key={day.iso} className="mx-0.5 h-14 rounded-lg flex items-center justify-center"
-                        style={{ border: '1px dashed var(--border)' }}>
+                      <div key={day.iso} className="mx-0.5 rounded-lg flex items-center justify-center"
+                        style={{ height: '56px', minHeight: '56px', maxHeight: '56px', minWidth: 0, border: '1px dashed var(--border)' }}>
                         <span style={{ color: 'var(--text-muted)', fontSize: '10px' }}>—</span>
                       </div>
                     )
                   }
 
                   // Normal empty slot
-                  if (!cell) return <div key={day.iso} className="mx-0.5 h-14 rounded-lg" />
+                  if (!cell) return <div key={day.iso} style={{ height: '56px', minHeight: '56px', maxHeight: '56px', minWidth: 0 }} className="mx-0.5 rounded-lg" />
 
                   // Lesson cell
                   const { cls, plan } = cell
@@ -203,23 +204,31 @@ export default function WeekView() {
                     <button
                       key={day.iso}
                       onClick={() => setSelectedLesson({ date: day.iso, classId: cell.slot.class_id, period, planId: plan?.id })}
-                      className="mx-0.5 h-14 rounded-lg text-left p-2 transition-all duration-150 hover:scale-[1.02] active:scale-95"
+                      className="mx-0.5 rounded-lg text-left p-2 transition-all duration-150 hover:scale-[1.02] active:scale-95"
                       style={{
+                        height: '56px',
+                        minHeight: '56px',
+                        maxHeight: '56px',
+                        width: '100%',
+                        minWidth: 0,
+                        overflow: 'hidden',
+                        display: 'flex',
+                        flexDirection: 'column',
                         background: today ? 'rgba(230,176,32,0.08)' : style === 'editorial' ? 'transparent' : 'var(--bg-raised)',
                         border: `1px solid ${today ? 'rgba(230,176,32,0.2)' : 'var(--border)'}`,
                         borderLeftWidth: cls?.color_code ? '3px' : '1px',
                         borderLeftColor: cls?.color_code || (today ? 'rgba(230,176,32,0.2)' : 'var(--border)')
                       }}
                     >
-                      <p className="text-xs font-semibold truncate leading-tight" style={{ color: 'var(--text-primary)' }}>
+                      <p style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-primary)', lineHeight: '14px', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', flexShrink: 0 }}>
                         {cls?.name || ''}
                       </p>
                       {plan?.plan_content && (
-                        <p className="text-xs truncate mt-0.5 leading-tight" style={{ color: 'var(--text-muted)' }}>
-                          {plan.plan_content.slice(0, 40)}
+                        <p style={{ fontSize: '10px', color: 'var(--text-muted)', lineHeight: '13px', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', marginTop: '1px', flexShrink: 0 }}>
+                          {plan.plan_content}
                         </p>
                       )}
-                      <div className="flex items-center gap-1 mt-0.5">
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '3px', marginTop: 'auto' }}>
                         {plan?.notes && <StickyNote size={10} style={{ color: 'var(--gold)' }} />}
                         {cell.homeworkDue?.length > 0 && <BookCheck size={10} style={{ color: '#7db88d' }} />}
                       </div>
